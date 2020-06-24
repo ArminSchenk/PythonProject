@@ -28,7 +28,7 @@ def outbreak_dynamics(population):
 
 # function that takes a population, the name of an argument which is needed to generate a population object
 # and plots how the outbreak dynamics change when changing the given parameter
-def simulate_parameter_change(population, parameter, start, end, step):
+def simulate_parameter_change(population, parameter, start, end, step, repeats=3):
     args = [population.number_persons, population.number_infected_persons, population.room_size,
             population.vel_max, population.infectious_range, population.infection_probability,
             population.cure_probability, population.death_probability]
@@ -52,10 +52,16 @@ def simulate_parameter_change(population, parameter, start, end, step):
     for changed_parameter in x_values:
         # change value of parameter
         args[index] = changed_parameter
-        population = Population(*args)
-        counts = outbreak_dynamics(population)
+        counts = [[],[],[]]
+        # do multiple repeats per step
+        for repeat in range(repeats):
+            population = Population(*args)
+            dynamics = outbreak_dynamics(population)
+            for i in range(3):
+                counts[i].append(dynamics[i])
+        # and save the means over those repeats
         for i in range(3):
-            y_values[i].append(counts[i])
+            y_values[i].append(sum(counts[i]) / len(counts[i]))
 
     # plot three lines
     plt.plot(x_values, y_values[0], c="blue", label="vulnerable")
